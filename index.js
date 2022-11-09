@@ -55,17 +55,6 @@ async function run() {
       const reviews = await cursor.toArray();
       res.send(reviews);
     });
-    // app.get("/reviews", async (req, res) => {
-    //   let query = {};
-    //   if (req.query.title) {
-    //     query = {
-    //       title: req.query.title,
-    //     };
-    //   }
-    //   const cursor = reviewCollection.find(query);
-    //   const reviews = await cursor.toArray();
-    //   res.send(reviews);
-    // });
     app.post("/reviews", async (req, res) => {
       const review = req.body;
       const result = await reviewCollection.insertOne(review);
