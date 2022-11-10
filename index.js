@@ -18,6 +18,7 @@ const client = new MongoClient(uri, {
 
 function verifyJWT(req, res, next) {
   const authHeader = req.headers.authorization;
+  console.log(authHeader);
   if (!authHeader) {
     return res.status(401).send({ message: "unauthorized access" });
   }
@@ -43,9 +44,7 @@ async function run() {
     app.post("/jwt", (req, res) => {
       const user = req.body;
       console.log(user);
-      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "1h",
-      });
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
       res.send({ token });
     });
 
@@ -74,6 +73,17 @@ async function run() {
     });
 
     // review section
+    app.get("/allreviews", async (req, res) => {
+      let query = {};
+      if (req.query.title) {
+        query = {
+          title: req.query.title,
+        };
+      }
+      const cursor = reviewCollection.find(query).sort({ _id: -1 });
+      const reviews = await cursor.toArray();
+      res.send(reviews);
+    });
     app.get("/reviews", verifyJWT, async (req, res) => {
       const decoded = req.decoded;
       if (decoded.email !== req.query.email) {
@@ -83,11 +93,6 @@ async function run() {
       if (req.query.email) {
         query = {
           email: req.query.email,
-        };
-      }
-      if (req.query.title) {
-        query = {
-          title: req.query.title,
         };
       }
       const cursor = reviewCollection.find(query).sort({ _id: -1 });
