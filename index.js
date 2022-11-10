@@ -57,7 +57,7 @@ async function run() {
     });
     app.get("/allservices", async (req, res) => {
       const query = {};
-      const cursor = serviceCollection.find(query).sort({ _id: -1 });
+      const cursor = serviceCollection.find(query);
       const services = await cursor.toArray();
       res.send(services);
     });
@@ -90,7 +90,7 @@ async function run() {
           title: req.query.title,
         };
       }
-      const cursor = reviewCollection.find(query);
+      const cursor = reviewCollection.find(query).sort({ _id: -1 });
       const reviews = await cursor.toArray();
       res.send(reviews);
     });
@@ -98,6 +98,12 @@ async function run() {
       const review = req.body;
       const result = await reviewCollection.insertOne(review);
       res.send(result);
+    });
+    app.get("/reviews/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const reviews = await reviewCollection.findOne(query);
+      res.send(reviews);
     });
     app.patch("/reviews/:id", async (req, res) => {
       const id = req.params.id;
